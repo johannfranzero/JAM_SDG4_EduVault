@@ -605,9 +605,8 @@ Public Class frmDashboard
 
     Private Sub btnBackup_Click(sender As Object, e As EventArgs) Handles btnBackup.Click
         UpdateNavActiveState(btnBackup)
-        Using frm As New frmBackupSchedule()
-            frm.ShowDialog(Me)
-        End Using
+        ShowEmbeddedForm(New frmBackupSchedule(), "Backup Database",
+                         "Schedule automated backups or run a backup now.")
     End Sub
 
     Private Sub btnMyBookmarks_Click(sender As Object, e As EventArgs) Handles btnMyBookmarks.Click
