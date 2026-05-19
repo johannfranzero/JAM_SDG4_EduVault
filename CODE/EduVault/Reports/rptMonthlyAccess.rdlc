@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner"
+        xmlns="http://schemas.microsoft.com/sqlserver/reporting/2008/01/reportdefinition">
+
+  <DataSources>
+    <DataSource Name="dsMonthlyAccess">
+      <ConnectionProperties>
+        <DataProvider>System.Data.DataSet</DataProvider>
+        <ConnectString></ConnectString>
+      </ConnectionProperties>
+      <rd:DataSourceID>dsMonthlyAccess</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+
+  <DataSets>
+    <DataSet Name="dsMonthlyAccess">
+      <Query>
+        <DataSourceName>dsMonthlyAccess</DataSourceName>
+        <CommandText></CommandText>
+      </Query>
+      <Fields>
+        <Field Name="Period"><DataField>Period</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="ResourceTitle"><DataField>ResourceTitle</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="CategoryName"><DataField>CategoryName</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="ResourceType"><DataField>ResourceType</DataField><rd:TypeName>System.String</rd:TypeName></Field>
+        <Field Name="TotalAccesses"><DataField>TotalAccesses</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+        <Field Name="UniqueUsers"><DataField>UniqueUsers</DataField><rd:TypeName>System.Int32</rd:TypeName></Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+
+  <Body>
+    <ReportItems>
+      <Tablix Name="tblxMonthly">
+        <TablixBody>
+          <TablixColumns>
+            <TablixColumn><Width>3.5cm</Width></TablixColumn>
+            <TablixColumn><Width>5.5cm</Width></TablixColumn>
+            <TablixColumn><Width>3.5cm</Width></TablixColumn>
+            <TablixColumn><Width>2.5cm</Width></TablixColumn>
+            <TablixColumn><Width>2.5cm</Width></TablixColumn>
+            <TablixColumn><Width>2.5cm</Width></TablixColumn>
+          </TablixColumns>
+          <TablixRows>
+            <!-- Header row -->
+            <TablixRow>
+              <Height>0.8cm</Height>
+              <TablixCells>
+                <TablixCell><CellContents><Textbox Name="hdrPeriod"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Period</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#19376D</BackgroundColor><VerticalAlign>Middle</VerticalAlign><PaddingLeft>4pt</PaddingLeft></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="hdrTitle"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Resource Title</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#19376D</BackgroundColor><VerticalAlign>Middle</VerticalAlign><PaddingLeft>4pt</PaddingLeft></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="hdrCat"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Category</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#19376D</BackgroundColor><VerticalAlign>Middle</VerticalAlign><PaddingLeft>4pt</PaddingLeft></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="hdrType"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Type</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#19376D</BackgroundColor><VerticalAlign>Middle</VerticalAlign><PaddingLeft>4pt</PaddingLeft></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="hdrAccesses"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Accesses</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#19376D</BackgroundColor><VerticalAlign>Middle</VerticalAlign><TextAlign>Right</TextAlign><PaddingRight>4pt</PaddingRight></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="hdrUsers"><Paragraphs><Paragraph><TextRuns><TextRun><Value>Unique Users</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight><Color>White</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#19376D</BackgroundColor><VerticalAlign>Middle</VerticalAlign><TextAlign>Right</TextAlign><PaddingRight>4pt</PaddingRight></Style></Textbox></CellContents></TablixCell>
+              </TablixCells>
+            </TablixRow>
+            <!-- Data row -->
+            <TablixRow>
+              <Height>0.6cm</Height>
+              <TablixCells>
+                <TablixCell><CellContents><Textbox Name="colPeriod"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!Period.Value</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>8.5pt</FontSize></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><PaddingLeft>4pt</PaddingLeft><VerticalAlign>Middle</VerticalAlign></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="colTitle"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!ResourceTitle.Value</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>8.5pt</FontSize></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><PaddingLeft>4pt</PaddingLeft><VerticalAlign>Middle</VerticalAlign></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="colCat"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!CategoryName.Value</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>8.5pt</FontSize></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><PaddingLeft>4pt</PaddingLeft><VerticalAlign>Middle</VerticalAlign></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="colType"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!ResourceType.Value</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>8.5pt</FontSize></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><PaddingLeft>4pt</PaddingLeft><VerticalAlign>Middle</VerticalAlign></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="colAccesses"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!TotalAccesses.Value</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>8.5pt</FontSize><FontWeight>Bold</FontWeight><Color>#19376D</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><PaddingRight>4pt</PaddingRight><VerticalAlign>Middle</VerticalAlign><TextAlign>Right</TextAlign></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="colUsers"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Fields!UniqueUsers.Value</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>8.5pt</FontSize></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><PaddingRight>4pt</PaddingRight><VerticalAlign>Middle</VerticalAlign><TextAlign>Right</TextAlign></Style></Textbox></CellContents></TablixCell>
+              </TablixCells>
+            </TablixRow>
+            <!-- Totals row -->
+            <TablixRow>
+              <Height>0.7cm</Height>
+              <TablixCells>
+                <TablixCell><CellContents><Textbox Name="ftrLabel"><Paragraphs><Paragraph><TextRuns><TextRun><Value>TOTAL</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#EBF5FB</BackgroundColor><PaddingLeft>4pt</PaddingLeft><VerticalAlign>Middle</VerticalAlign></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="ftrB1"><Paragraphs><Paragraph><TextRuns><TextRun><Value></Value></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#EBF5FB</BackgroundColor></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="ftrB2"><Paragraphs><Paragraph><TextRuns><TextRun><Value></Value></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#EBF5FB</BackgroundColor></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="ftrB3"><Paragraphs><Paragraph><TextRuns><TextRun><Value></Value></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#EBF5FB</BackgroundColor></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="ftrTotalAcc"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Sum(Fields!TotalAccesses.Value)</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight><Color>#19376D</Color></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#EBF5FB</BackgroundColor><PaddingRight>4pt</PaddingRight><VerticalAlign>Middle</VerticalAlign><TextAlign>Right</TextAlign></Style></Textbox></CellContents></TablixCell>
+                <TablixCell><CellContents><Textbox Name="ftrTotalUsr"><Paragraphs><Paragraph><TextRuns><TextRun><Value>=Max(Fields!UniqueUsers.Value)</Value><Style><FontFamily>Segoe UI</FontFamily><FontSize>9pt</FontSize><FontWeight>Bold</FontWeight></Style></TextRun></TextRuns></Paragraph></Paragraphs><Style><BackgroundColor>#EBF5FB</BackgroundColor><PaddingRight>4pt</PaddingRight><VerticalAlign>Middle</VerticalAlign><TextAlign>Right</TextAlign></Style></Textbox></CellContents></TablixCell>
+              </TablixCells>
+            </TablixRow>
+          </TablixRows>
+        </TablixBody>
+        <TablixColumnHierarchy>
+          <TablixMembers>
+            <TablixMember/><TablixMember/><TablixMember/>
+            <TablixMember/><TablixMember/><TablixMember/>
+          </TablixMembers>
+        </TablixColumnHierarchy>
+        <TablixRowHierarchy>
+          <TablixMembers>
+            <TablixMember><KeepWithGroup>After</KeepWithGroup><RepeatOnNewPage>true</RepeatOnNewPage><KeepTogether>true</KeepTogether></TablixMember>
+            <TablixMember><Group Name="Detail"/></TablixMember>
+            <TablixMember><KeepWithGroup>Before</KeepWithGroup></TablixMember>
+          </TablixMembers>
+        </TablixRowHierarchy>
+        <DataSetName>dsMonthlyAccess</DataSetName>
+        <Top>0cm</Top>
+        <Left>0cm</Left>
+        <Width>20cm</Width>
+        <Style/>
+      </Tablix>
+    </ReportItems>
+    <Height>10cm</Height>
+  </Body>
+
+  <Width>20cm</Width>
+
+  <Page>
+    <PageWidth>29.7cm</PageWidth>
+    <PageHeight>21cm</PageHeight>
+    <LeftMargin>1.5cm</LeftMargin>
+    <RightMargin>1.5cm</RightMargin>
+    <TopMargin>1cm</TopMargin>
+    <BottomMargin>1cm</BottomMargin>
+    <Style/>
+  </Page>
+
+  <Language>en-PH</Language>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+
+</Report>
