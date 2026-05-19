@@ -21,16 +21,16 @@ Namespace SqlServerTypes
         ''' </param>
         Public Shared Sub LoadNativeAssemblies(rootApplicationPath As String)
             Dim nativeBinaryPath As String = If(IntPtr.Size > 4,
-                Path.Combine(rootApplicationPath, "SqlServerTypes\x64\"),
-                Path.Combine(rootApplicationPath, "SqlServerTypes\x86\"))
+                IO.Path.Combine(rootApplicationPath, "SqlServerTypes\x64\"),
+                IO.Path.Combine(rootApplicationPath, "SqlServerTypes\x86\"))
 
             LoadNativeAssembly(nativeBinaryPath, "msvcr120.dll")
             LoadNativeAssembly(nativeBinaryPath, "SqlServerSpatial140.dll")
         End Sub
 
         Private Shared Sub LoadNativeAssembly(nativeBinaryPath As String, assemblyName As String)
-            Dim path As String = Path.Combine(nativeBinaryPath, assemblyName)
-            Dim ptr As IntPtr = LoadLibrary(path)
+            Dim filePath As String = IO.Path.Combine(nativeBinaryPath, assemblyName)
+            Dim ptr As IntPtr = LoadLibrary(filePath)
             If ptr = IntPtr.Zero Then
                 Throw New Exception(
                     String.Format("Error loading {0} (ErrorCode: {1})",
