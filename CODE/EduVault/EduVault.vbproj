@@ -177,6 +177,7 @@
     <Compile Include="Forms\frmUserManagement.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="SqlServerTypes\Loader.vb" />
     <Compile Include="Models\AccessLog.vb" />
     <Compile Include="Models\Bookmark.vb" />
     <Compile Include="Models\Category.vb" />
@@ -225,8 +226,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SqlServerTypes\Loader.cs" />
     <Content Include="SqlServerTypes\readme.htm" />
+
     <Content Include="SqlServerTypes\x64\msvcr120.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
