@@ -40,11 +40,11 @@ EduVault directly supports **UN Sustainable Development Goal 4 — Quality Educa
 ## 🏗️ Architecture — N-Tier Design
 
 ```
-Presentation Layer    →  Windows Forms (.vb / .Designer.vb)
-Business Logic Layer  →  Service classes (AuthService, ResourceService, ReportService, CategoryService)
+Presentation Layer    →  Windows Forms (.vb / .Designer.vb) — 18 forms + helpers
+Business Logic Layer  →  Service classes (AuthService, ResourceService, ReportService, CategoryService, UserService)
 Data Access Layer     →  Repository classes using ADO.NET SqlClient (parameterized queries only)
-Model Layer           →  POCO classes (User, Resource, Category, AccessLog, Bookmark)
-Database Layer        →  Microsoft SQL Server (5 related tables + 2 views)
+Model Layer           →  POCO classes (User, Resource, Category, AccessLog, Bookmark, Session)
+Database Layer        →  Microsoft SQL Server (12 related tables + 4 views + 6 indexes)
 ```
 
 ---
@@ -52,29 +52,26 @@ Database Layer        →  Microsoft SQL Server (5 related tables + 2 views)
 ## 🗂️ Repository Structure
 
 ```
-EduVault/                          ← GitHub repository root
+JAM_SDG4_EduVault/                 ← GitHub repository root
 │   .gitignore
 │   README.md
 │
 ├── CODE/
-│   └── EduVault/                  ← Active VB.NET WinForms project (open this in Visual Studio)
-│
-├── SQL/                           ← **Canonical** database setup (use this for new installs)
-│   ├── 00_Setup.sql               ← Runs schema + migrations + seed (SQLCMD Mode)
-│   ├── 01_Schema.sql              ← Core v2 tables/columns (matches DAL)
-│   ├── 02_SeedData.sql            ← Users, categories, sample resources
-│   ├── 03_Migrations.sql          ← Idempotent upgrades (legacy DBs + optional v2 tables)
-│   └── README.md                  ← Script order and troubleshooting
+│   ├── EduVault.sln               ← Visual Studio Solution file
+│   └── EduVault/                  ← VB.NET WinForms project (BLL, DAL, Forms, Models)
 │
 ├── DATABASE/
-│   └── Database_Script.sql        ← Legacy v1 all-in-one script (prefer `SQL/` instead)
+│   └── Database_Script.sql        ← Full database script (Schema + Seed Data)
 │
 ├── DOCUMENTATION/
-│   ├── SDAD_EduVault.pdf          ← Full SDAD (converted from .md)
-│   └── ERD_Diagram.png            ← Entity-Relationship Diagram
+│   ├── SDAD_JAM.pdf               ← Software Design & Analysis Document
+│   ├── ERD_Diagram.png            ← Entity-Relationship Diagram (12 tables)
+│   ├── NTier_Architecture.png     ← N-Tier Architecture Diagram
+│   ├── DFD_Level0_Context.png     ← Data Flow Diagram — Level 0
+│   └── DFD_Level1_Process.png     ← Data Flow Diagram — Level 1
 │
 └── REPORTS/
-    └── Sample_Report_Export.pdf   ← Sample exported report (generated at runtime)
+    └── Sample_Report_Export.pdf   ← Sample exported monthly access report
 ```
 
 ---
@@ -87,21 +84,12 @@ EduVault/                          ← GitHub repository root
 - SQL Server Management Studio (SSMS)
 
 ### Step 1 — Database Setup
-1. Open **SSMS** and connect to your SQL Server instance.
-2. Open **`SQL/00_Setup.sql`**, enable **Query → SQLCMD Mode**, and execute (F5).
-
-   This runs, in order: `01_Schema.sql` → `03_Migrations.sql` → `02_SeedData.sql`.
-
-   Without SQLCMD Mode, run those three files manually in the same order (see **`SQL/README.md`**).
-
-3. **Existing database from an older script?** Run only **`SQL/03_Migrations.sql`** (safe to re-run).
-
-The schema includes columns the app expects (`FailedLoginCount`, `DownloadCount`, `PasswordResetToken`, `tblLog`, etc.). Seed data ships with SHA-256 hashes for the default passwords below.
-
-> **Legacy:** `DATABASE/Database_Script.sql` is an older v1 bundle and does not include all v2 columns. Use the `SQL/` folder instead.
+1. Open **SSMS** and connect to your SQL Server instance (e.g., `(LocalDB)\MSSQLLocalDB` or `.\SQLEXPRESS`).
+2. Open **`DATABASE/Database_Script.sql`** and execute (F5).
+3. The script creates the `EduVaultDB` database, all tables, views, indexes, and inserts seed data (admin + student accounts with SHA-256 hashed passwords).
 
 ### Step 2 — Visual Studio Project Setup
-1. Open **`CODE/EduVault/EduVault.vbproj`** in Visual Studio 2019+ (.NET Framework 4.8).
+1. Open **`CODE/EduVault.sln`** in Visual Studio 2019+ (.NET Framework 4.8).
 2. Confirm **`App.config`** connection string points at your SQL Server instance (see Step 4).
 
 ### Step 3 — Add Required Reference
@@ -130,18 +118,24 @@ Change `.\SQLEXPRESS` to match your SQL Server instance name.
 
 ## 🗄️ Database Schema
 
-| Table / view | Purpose |
+| Table / View | Purpose |
 |---|---|
 | `tblUsers` | Users (roles, lockout, password reset, dark mode preference) |
 | `tblCategories` | Resource categories |
 | `tblResources` | Resources (views, downloads, thumbnails, versioning) |
 | `tblAccessLog` | View / bookmark / download events for reports |
 | `tblBookmarks` | Student bookmarks |
+| `tblRatings` | 1–5 star ratings and text reviews per resource |
+| `tblNotifications` | System alerts and broadcasts to users |
+| `tblResourceRequests` | Student requests for new materials |
+| `tblFavourites` | Named curated resource lists |
+| `tblResourceVersions` | Audit trail for resource edits |
+| `tblBackupSchedule` | Automated backup configuration |
 | `tblLog` | Application error log (admin System Logs screen) |
 | `vwResourceSummary` | Resource list JOIN view |
 | `vwMonthlyAccessSummary` | Monthly report aggregation |
-
-Optional v2 tables (created by `03_Migrations.sql`, not all wired in UI yet): `tblRatings`, `tblNotifications`, `tblResourceRequests`, `tblFavourites`, `tblResourceVersions`, `tblBackupSchedule`.
+| `vwResourceRatings` | Average stars and total ratings per resource |
+| `vwTopActiveUsers` | Top 10 most active users (last 30 days) |
 
 ---
 
@@ -187,13 +181,11 @@ The **Monthly Access Summary Report** (`frmReport`) shows:
 
 | Member | Assigned Layer | Specific Modules |
 |---|---|---|
-| [Member 1 — Full Name] | Database + Model Layer | SQL Schema, Seed Data, User.vb, Resource.vb, Category.vb |
-| [Member 2 — Full Name] | Data Access Layer (DAL) | UserRepository, ResourceRepository, CategoryRepository |
-| [Member 3 — Full Name] | Business Logic Layer (BLL) | AuthService, ResourceService, CategoryService |
-| [Member 4 — Full Name] | Presentation Layer (Forms) | frmLogin, frmDashboard, frmManageResources |
-| [Member 5 — Full Name] | Reporting + Documentation | ReportService, frmReport, SDAD, README |
-
-> ✏️ Replace placeholder names with your actual group members before submission.
+| Firmalan, Johann | Database + Model Layer | SQL Schema, Seed Data, User.vb, Resource.vb, Category.vb |
+| Firmalan, Johann | Data Access Layer (DAL) | UserRepository, ResourceRepository, CategoryRepository |
+| Anderson, Kurt | Business Logic Layer (BLL) | AuthService, ResourceService, CategoryService |
+| Jongco, Mark Steven | Presentation Layer (Forms) | frmLogin, frmDashboard, frmManageResources |
+| Empeno, AJ | Reporting + Documentation | ReportService, frmReport, SDAD, README |
 
 ---
 
