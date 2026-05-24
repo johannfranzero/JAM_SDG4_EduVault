@@ -3,17 +3,30 @@
 -- Includes: Schema (DDL) + Seed Data (DML)
 -- Database  : EduVaultDB
 -- SDG Target: UN SDG 4 — Quality Education
--- Version   : 1.0
+-- Version   : 1.1
+-- ============================================================
+-- NOTE: This script drops and fully recreates EduVaultDB each
+--       time it is run, guaranteeing a clean slate with no FK
+--       conflicts, duplicate key errors, or stale indexes.
 -- ============================================================
 
 USE master;
 GO
 
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'EduVaultDB')
+-- ============================================================
+-- SECTION 0: DROP & RECREATE DATABASE
+-- ============================================================
+
+-- Force all existing connections off so the drop never blocks
+IF EXISTS (SELECT name FROM sys.databases WHERE name = 'EduVaultDB')
 BEGIN
-    CREATE DATABASE EduVaultDB;
-    PRINT 'Database EduVaultDB created.';
+    ALTER DATABASE EduVaultDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE EduVaultDB;
+    PRINT 'Existing EduVaultDB dropped.';
 END
+
+CREATE DATABASE EduVaultDB;
+PRINT 'EduVaultDB created.';
 GO
 
 USE EduVaultDB;
@@ -22,27 +35,6 @@ GO
 -- ============================================================
 -- SECTION 1: SCHEMA (DDL)
 -- ============================================================
-
--- Step 1: Drop ALL foreign key constraints on our tables first.
---         This lets us drop tables in any order without FK errors.
-DECLARE @dropFKsql NVARCHAR(MAX) = N'';
-SELECT @dropFKsql = @dropFKsql +
-    'ALTER TABLE ' + QUOTENAME(SCHEMA_NAME(t.schema_id)) + '.' +
-    QUOTENAME(t.name) + ' DROP CONSTRAINT ' + QUOTENAME(fk.name) + ';' + CHAR(10)
-FROM   sys.foreign_keys   fk
-INNER JOIN sys.tables     t  ON fk.parent_object_id = t.object_id
-WHERE  t.name IN ('tblBookmarks','tblAccessLog','tblResources','tblCategories','tblUsers');
-IF LEN(@dropFKsql) > 0 EXEC sp_executesql @dropFKsql;
-GO
-
--- Step 2: Now drop tables safely (no FK constraints remain to block us)
-IF OBJECT_ID('tblBookmarks',  'U') IS NOT NULL DROP TABLE tblBookmarks;
-IF OBJECT_ID('tblAccessLog',  'U') IS NOT NULL DROP TABLE tblAccessLog;
-IF OBJECT_ID('tblResources',  'U') IS NOT NULL DROP TABLE tblResources;
-IF OBJECT_ID('tblCategories', 'U') IS NOT NULL DROP TABLE tblCategories;
-IF OBJECT_ID('tblUsers',      'U') IS NOT NULL DROP TABLE tblUsers;
-IF OBJECT_ID('tblLog',        'U') IS NOT NULL DROP TABLE tblLog;
-GO
 
 -- tblUsers
 CREATE TABLE tblUsers (
@@ -142,9 +134,6 @@ CREATE NONCLUSTERED INDEX IX_AccessLog_UserID       ON tblAccessLog(UserID);
 GO
 
 -- Views
-IF OBJECT_ID('vwResourceSummary',      'V') IS NOT NULL DROP VIEW vwResourceSummary;
-IF OBJECT_ID('vwMonthlyAccessSummary', 'V') IS NOT NULL DROP VIEW vwMonthlyAccessSummary;
-GO
 CREATE VIEW vwResourceSummary AS
     SELECT r.ResourceID, r.Title, r.Description, c.CategoryName,
            r.SubjectArea, r.ResourceType, r.URL, r.EducationLevel,
@@ -153,6 +142,7 @@ CREATE VIEW vwResourceSummary AS
     INNER JOIN tblCategories c ON r.CategoryID = c.CategoryID
     INNER JOIN tblUsers       u ON r.AddedBy    = u.UserID;
 GO
+
 CREATE VIEW vwMonthlyAccessSummary AS
     SELECT YEAR(al.AccessDate) AS AccessYear, MONTH(al.AccessDate) AS AccessMonth,
            DATENAME(MONTH, al.AccessDate) AS MonthName,
@@ -191,16 +181,16 @@ VALUES ('student1',
 GO
 
 -- Categories
-INSERT INTO tblCategories (CategoryName, Description) VALUES ('Mathematics',              'Algebra, Calculus, Statistics, and Discrete Math resources');
-INSERT INTO tblCategories (CategoryName, Description) VALUES ('Science & Technology',     'Physics, Chemistry, Biology, and IT resources');
-INSERT INTO tblCategories (CategoryName, Description) VALUES ('Programming',              'Software development, algorithms, and coding tutorials');
-INSERT INTO tblCategories (CategoryName, Description) VALUES ('English & Communication',  'Academic writing, grammar, and communication skills');
-INSERT INTO tblCategories (CategoryName, Description) VALUES ('Social Sciences',          'History, Economics, Political Science, and Sociology');
-INSERT INTO tblCategories (CategoryName, Description) VALUES ('Health & Wellness',        'Physical education, mental health, and medical resources');
+INSERT INTO tblCategories (CategoryName, Description) VALUES ('Mathematics',                 'Algebra, Calculus, Statistics, and Discrete Math resources');
+INSERT INTO tblCategories (CategoryName, Description) VALUES ('Science & Technology',        'Physics, Chemistry, Biology, and IT resources');
+INSERT INTO tblCategories (CategoryName, Description) VALUES ('Programming',                 'Software development, algorithms, and coding tutorials');
+INSERT INTO tblCategories (CategoryName, Description) VALUES ('English & Communication',     'Academic writing, grammar, and communication skills');
+INSERT INTO tblCategories (CategoryName, Description) VALUES ('Social Sciences',             'History, Economics, Political Science, and Sociology');
+INSERT INTO tblCategories (CategoryName, Description) VALUES ('Health & Wellness',           'Physical education, mental health, and medical resources');
 INSERT INTO tblCategories (CategoryName, Description) VALUES ('Business & Entrepreneurship', 'Management, marketing, and startup resources');
 GO
 
--- Resources (using Admin UserID = 1)
+-- Resources (AdminID = 1 is guaranteed after a clean DB creation)
 DECLARE @AdminID   INT = 1;
 DECLARE @ProgCatID INT = (SELECT CategoryID FROM tblCategories WHERE CategoryName = 'Programming');
 DECLARE @MathCatID INT = (SELECT CategoryID FROM tblCategories WHERE CategoryName = 'Mathematics');
@@ -223,7 +213,7 @@ INSERT INTO tblResources (Title, Description, CategoryID, SubjectArea, ResourceT
 ('Purdue OWL — Academic Writing Guide', 'Free writing resources covering APA, MLA, Chicago styles, grammar, and academic writing.', @EngCatID, 'Academic Writing', 'Reference', 'https://owl.purdue.edu/owl/', 'Beginner', 'writing,grammar,APA,MLA,academic,free', @AdminID);
 GO
 
--- Sample Access Logs (TOP 1 ensures no error even if duplicates somehow exist)
+-- Sample Access Logs (IDs looked up dynamically — always correct after clean DB)
 DECLARE @StudentID INT = (SELECT TOP 1 UserID     FROM tblUsers     WHERE Username = 'student1');
 DECLARE @Res1ID    INT = (SELECT TOP 1 ResourceID FROM tblResources WHERE Title LIKE 'freeCodeCamp%');
 DECLARE @Res2ID    INT = (SELECT TOP 1 ResourceID FROM tblResources WHERE Title LIKE 'CS50x%');
