@@ -118,7 +118,7 @@ Public Class frmLogin
         
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
-        Me.ClientSize = New Size(600, 420)
+        Me.ClientSize = New Size(600, 460)
         Me.BackColor = Color.White
         
         ' --- LEFT PANEL ---
@@ -215,7 +215,12 @@ Public Class frmLogin
         btnLogin.Font = New Font("Segoe UI", 11, FontStyle.Bold)
         pnlRightNew.Controls.Add(btnLogin)
         
-        Dim pnlDiv As New FlowLayoutPanel() With {.Location = New Point(32, 316), .Size = New Size(320, 16), .FlowDirection = FlowDirection.LeftToRight, .WrapContents = False}
+        lblStatus.Location = New Point(32, 310)
+        lblStatus.Size = New Size(320, 36)
+        lblStatus.AutoSize = False
+        pnlRightNew.Controls.Add(lblStatus)
+        
+        Dim pnlDiv As New FlowLayoutPanel() With {.Location = New Point(32, 356), .Size = New Size(320, 16), .FlowDirection = FlowDirection.LeftToRight, .WrapContents = False}
         Dim l1 As New Label With {.Text = "───────────────", .ForeColor = Color.LightGray, .AutoSize = True, .Margin = New Padding(0, 0, 0, 0)}
         Dim l2 As New Label With {.Text = " or ", .ForeColor = Color.Gray, .AutoSize = True, .Font = New Font("Segoe UI", 9), .Margin = New Padding(0, -2, 0, 0)}
         Dim l3 As New Label With {.Text = "───────────────", .ForeColor = Color.LightGray, .AutoSize = True, .Margin = New Padding(0, 0, 0, 0)}
@@ -224,7 +229,7 @@ Public Class frmLogin
         pnlDiv.Controls.Add(l3)
         pnlRightNew.Controls.Add(pnlDiv)
         
-        btnGuest.Location = New Point(32, 342)
+        btnGuest.Location = New Point(32, 382)
         btnGuest.Size = New Size(320, 32)
         btnGuest.Text = "👁 Browse as Guest"
         btnGuest.FlatStyle = FlatStyle.Flat
@@ -236,7 +241,7 @@ Public Class frmLogin
         AddHandler btnGuest.Click, AddressOf btnGuest_Click
         pnlRightNew.Controls.Add(btnGuest)
         
-        lnkSignUp.Location = New Point(100, 386)
+        lnkSignUp.Location = New Point(100, 426)
         lnkSignUp.Font = New Font("Segoe UI", 9.5)
         lnkSignUp.AutoSize = True
         lnkSignUp.LinkArea = New LinkArea(0, lnkSignUp.Text.Length)
@@ -244,8 +249,7 @@ Public Class frmLogin
         AddHandler lnkSignUp.LinkClicked, AddressOf lnkSignUp_LinkClicked
         pnlRightNew.Controls.Add(lnkSignUp)
         
-        lblStatus.Location = New Point(32, 400)
-        pnlRightNew.Controls.Add(lblStatus)
+
         
         ' Hook focus events for styling
         AddHandler txtUsername.Enter, AddressOf txtUsername_EnterNew
@@ -483,6 +487,8 @@ Public Class frmLogin
     Private Sub ShowError(message As String)
         lblStatus.ForeColor = Color.FromArgb(192, 0, 0)
         lblStatus.Text = $"[X] {message}"
+        ' Also show a MessageBox so the error is impossible to miss
+        MessageBox.Show(message, "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
     End Sub
 
     Private Sub ClearStatus()
