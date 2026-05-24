@@ -38,14 +38,24 @@ GO
 
 -- tblUsers
 CREATE TABLE tblUsers (
-    UserID       INT           IDENTITY(1,1) NOT NULL,
-    Username     NVARCHAR(50)  NOT NULL,
-    PasswordHash NVARCHAR(256) NOT NULL,
-    FullName     NVARCHAR(100) NOT NULL,
-    Email        NVARCHAR(100) NULL,
-    Role         NVARCHAR(20)  NOT NULL DEFAULT 'Student',
-    IsActive     BIT           NOT NULL DEFAULT 1,
-    DateCreated  DATETIME      NOT NULL DEFAULT GETDATE(),
+    UserID             INT           IDENTITY(1,1) NOT NULL,
+    Username           NVARCHAR(50)  NOT NULL,
+    PasswordHash       NVARCHAR(256) NOT NULL,
+    FullName           NVARCHAR(100) NOT NULL,
+    Email              NVARCHAR(100) NULL,
+    Role               NVARCHAR(20)  NOT NULL DEFAULT 'Student',
+    IsActive           BIT           NOT NULL DEFAULT 1,
+    DateCreated        DATETIME      NOT NULL DEFAULT GETDATE(),
+    -- Security / lockout columns (required by AuthService & UserRepository)
+    FailedLoginCount   INT           NOT NULL DEFAULT 0,
+    LockoutEndTime     DATETIME      NULL,
+    LastLoginDate      DATETIME      NULL,
+    PasswordResetToken NVARCHAR(256) NULL,
+    ResetTokenExpiry   DATETIME      NULL,
+    -- Preference columns
+    EmailVerified      BIT           NOT NULL DEFAULT 0,
+    FavouriteCategory  INT           NULL,
+    DarkMode           BIT           NOT NULL DEFAULT 0,
     CONSTRAINT PK_tblUsers  PRIMARY KEY (UserID),
     CONSTRAINT UQ_Username  UNIQUE (Username),
     CONSTRAINT CHK_Role     CHECK (Role IN ('Admin', 'Student'))
