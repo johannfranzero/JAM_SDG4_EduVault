@@ -90,6 +90,10 @@ CREATE TABLE tblResources (
     DateAdded      DATETIME       NOT NULL DEFAULT GETDATE(),
     IsActive       BIT            NOT NULL DEFAULT 1,
     ViewCount      INT            NOT NULL DEFAULT 0,
+    -- V2 columns (required by ResourceRepository)
+    DownloadCount  INT            NOT NULL DEFAULT 0,
+    ThumbnailPath  NVARCHAR(500)  NULL,
+    CurrentVersion INT            NOT NULL DEFAULT 1,
     CONSTRAINT PK_tblResources   PRIMARY KEY (ResourceID),
     CONSTRAINT FK_Res_Category   FOREIGN KEY (CategoryID) REFERENCES tblCategories(CategoryID),
     CONSTRAINT FK_Res_AddedBy    FOREIGN KEY (AddedBy)    REFERENCES tblUsers(UserID),
