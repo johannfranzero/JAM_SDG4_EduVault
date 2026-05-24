@@ -23,7 +23,19 @@ GO
 -- SECTION 1: SCHEMA (DDL)
 -- ============================================================
 
--- Drop child tables first, then parent tables (respect FK dependency order)
+-- Step 1: Drop ALL foreign key constraints on our tables first.
+--         This lets us drop tables in any order without FK errors.
+DECLARE @dropFKsql NVARCHAR(MAX) = N'';
+SELECT @dropFKsql = @dropFKsql +
+    'ALTER TABLE ' + QUOTENAME(SCHEMA_NAME(t.schema_id)) + '.' +
+    QUOTENAME(t.name) + ' DROP CONSTRAINT ' + QUOTENAME(fk.name) + ';' + CHAR(10)
+FROM   sys.foreign_keys   fk
+INNER JOIN sys.tables     t  ON fk.parent_object_id = t.object_id
+WHERE  t.name IN ('tblBookmarks','tblAccessLog','tblResources','tblCategories','tblUsers');
+IF LEN(@dropFKsql) > 0 EXEC sp_executesql @dropFKsql;
+GO
+
+-- Step 2: Now drop tables safely (no FK constraints remain to block us)
 IF OBJECT_ID('tblBookmarks',  'U') IS NOT NULL DROP TABLE tblBookmarks;
 IF OBJECT_ID('tblAccessLog',  'U') IS NOT NULL DROP TABLE tblAccessLog;
 IF OBJECT_ID('tblResources',  'U') IS NOT NULL DROP TABLE tblResources;
@@ -211,11 +223,11 @@ INSERT INTO tblResources (Title, Description, CategoryID, SubjectArea, ResourceT
 ('Purdue OWL — Academic Writing Guide', 'Free writing resources covering APA, MLA, Chicago styles, grammar, and academic writing.', @EngCatID, 'Academic Writing', 'Reference', 'https://owl.purdue.edu/owl/', 'Beginner', 'writing,grammar,APA,MLA,academic,free', @AdminID);
 GO
 
--- Sample Access Logs (use dynamic lookups so IDs are correct after any re-run)
-DECLARE @StudentID INT = (SELECT UserID     FROM tblUsers     WHERE Username    = 'student1');
-DECLARE @Res1ID    INT = (SELECT ResourceID FROM tblResources WHERE Title        LIKE 'freeCodeCamp%');
-DECLARE @Res2ID    INT = (SELECT ResourceID FROM tblResources WHERE Title        LIKE 'CS50x%');
-DECLARE @Res3ID    INT = (SELECT ResourceID FROM tblResources WHERE Title        LIKE 'Khan Academy%');
+-- Sample Access Logs (TOP 1 ensures no error even if duplicates somehow exist)
+DECLARE @StudentID INT = (SELECT TOP 1 UserID     FROM tblUsers     WHERE Username = 'student1');
+DECLARE @Res1ID    INT = (SELECT TOP 1 ResourceID FROM tblResources WHERE Title LIKE 'freeCodeCamp%');
+DECLARE @Res2ID    INT = (SELECT TOP 1 ResourceID FROM tblResources WHERE Title LIKE 'CS50x%');
+DECLARE @Res3ID    INT = (SELECT TOP 1 ResourceID FROM tblResources WHERE Title LIKE 'Khan Academy%');
 
 INSERT INTO tblAccessLog (UserID, ResourceID, AccessDate, AccessType) VALUES (@StudentID, @Res1ID, DATEADD(DAY, -5,  GETDATE()), 'View');
 INSERT INTO tblAccessLog (UserID, ResourceID, AccessDate, AccessType) VALUES (@StudentID, @Res1ID, DATEADD(DAY, -3,  GETDATE()), 'Bookmark');
