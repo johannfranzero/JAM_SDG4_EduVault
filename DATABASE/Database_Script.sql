@@ -23,11 +23,13 @@ GO
 -- SECTION 1: SCHEMA (DDL)
 -- ============================================================
 
+-- Drop child tables first, then parent tables (respect FK dependency order)
 IF OBJECT_ID('tblBookmarks',  'U') IS NOT NULL DROP TABLE tblBookmarks;
 IF OBJECT_ID('tblAccessLog',  'U') IS NOT NULL DROP TABLE tblAccessLog;
 IF OBJECT_ID('tblResources',  'U') IS NOT NULL DROP TABLE tblResources;
 IF OBJECT_ID('tblCategories', 'U') IS NOT NULL DROP TABLE tblCategories;
 IF OBJECT_ID('tblUsers',      'U') IS NOT NULL DROP TABLE tblUsers;
+IF OBJECT_ID('tblLog',        'U') IS NOT NULL DROP TABLE tblLog;
 GO
 
 -- tblUsers
@@ -209,11 +211,11 @@ INSERT INTO tblResources (Title, Description, CategoryID, SubjectArea, ResourceT
 ('Purdue OWL — Academic Writing Guide', 'Free writing resources covering APA, MLA, Chicago styles, grammar, and academic writing.', @EngCatID, 'Academic Writing', 'Reference', 'https://owl.purdue.edu/owl/', 'Beginner', 'writing,grammar,APA,MLA,academic,free', @AdminID);
 GO
 
--- Sample Access Logs
-DECLARE @StudentID INT = 2;
-DECLARE @Res1ID    INT = 1;
-DECLARE @Res2ID    INT = 2;
-DECLARE @Res3ID    INT = 3;
+-- Sample Access Logs (use dynamic lookups so IDs are correct after any re-run)
+DECLARE @StudentID INT = (SELECT UserID     FROM tblUsers     WHERE Username    = 'student1');
+DECLARE @Res1ID    INT = (SELECT ResourceID FROM tblResources WHERE Title        LIKE 'freeCodeCamp%');
+DECLARE @Res2ID    INT = (SELECT ResourceID FROM tblResources WHERE Title        LIKE 'CS50x%');
+DECLARE @Res3ID    INT = (SELECT ResourceID FROM tblResources WHERE Title        LIKE 'Khan Academy%');
 
 INSERT INTO tblAccessLog (UserID, ResourceID, AccessDate, AccessType) VALUES (@StudentID, @Res1ID, DATEADD(DAY, -5,  GETDATE()), 'View');
 INSERT INTO tblAccessLog (UserID, ResourceID, AccessDate, AccessType) VALUES (@StudentID, @Res1ID, DATEADD(DAY, -3,  GETDATE()), 'Bookmark');
