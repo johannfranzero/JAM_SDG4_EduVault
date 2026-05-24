@@ -85,7 +85,7 @@ JAM_SDG4_EduVault/                 ← GitHub repository root
 
 ### Step 1 — Database Setup
 1. Open **SQL Server Management Studio (SSMS)**.
-2. Connect to your local SQL Server instance — this is usually **`.\SQLEXPRESS`** (SQL Server Express). You can confirm the exact name from the SSMS login dialog.
+2. Connect to **`(LocalDB)\MSSQLLocalDB`** — this is SQL Server LocalDB, which comes bundled with Visual Studio. Use **Windows Authentication**.
 3. Open **`DATABASE/Database_Script.sql`** in SSMS (File → Open → File).
 4. Press **F5** (or click Execute) to run the script.
 
@@ -95,14 +95,13 @@ JAM_SDG4_EduVault/                 ← GitHub repository root
 1. Open **`CODE/EduVault.sln`** in Visual Studio 2019 or later (.NET Framework 4.8).
 2. Build the solution once (Ctrl+Shift+B) to restore all references.
 
-### Step 3 — Check the Connection String
-The connection string in **`CODE/EduVault/App.config`** is already configured for SQL Server Express:
+### Step 3 — Connection String
+The connection string in **`CODE/EduVault/App.config`** is already configured for LocalDB — **no changes needed**:
 ```xml
 <add name="EduVaultDB"
-     connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=EduVaultDB;Integrated Security=True"
+     connectionString="Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=EduVaultDB;Integrated Security=True"
      providerName="System.Data.SqlClient" />
 ```
-> ⚠️ **If your SQL Server instance has a different name** (e.g. `localhost`, `(local)`, or a named instance), update `Data Source=` to match the server name shown in your SSMS login dialog.
 
 ### Step 4 — Run the Application
 - Press **F5** in Visual Studio to build and launch.
