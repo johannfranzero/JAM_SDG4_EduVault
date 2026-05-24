@@ -84,31 +84,31 @@ JAM_SDG4_EduVault/                 ← GitHub repository root
 - SQL Server Management Studio (SSMS)
 
 ### Step 1 — Database Setup
-1. Open **SSMS** and connect to your SQL Server instance (e.g., `(LocalDB)\MSSQLLocalDB` or `.\SQLEXPRESS`).
-2. Open **`DATABASE/Database_Script.sql`** and execute (F5).
-3. The script creates the `EduVaultDB` database, all tables, views, indexes, and inserts seed data (admin + student accounts with SHA-256 hashed passwords).
+1. Open **SQL Server Management Studio (SSMS)**.
+2. Connect to your local SQL Server instance — this is usually **`.\SQLEXPRESS`** (SQL Server Express). You can confirm the exact name from the SSMS login dialog.
+3. Open **`DATABASE/Database_Script.sql`** in SSMS (File → Open → File).
+4. Press **F5** (or click Execute) to run the script.
 
-### Step 2 — Visual Studio Project Setup
-1. Open **`CODE/EduVault.sln`** in Visual Studio 2019+ (.NET Framework 4.8).
-2. Confirm **`App.config`** connection string points at your SQL Server instance (see Step 4).
+> The script automatically drops and recreates `EduVaultDB` from scratch every time — no manual cleanup needed. It creates all tables, views, indexes, and inserts seed data.
 
-### Step 3 — Add Required Reference
-- Right-click **References** → **Add Reference** → search for **`System.Configuration`**
+### Step 2 — Open the Project in Visual Studio
+1. Open **`CODE/EduVault.sln`** in Visual Studio 2019 or later (.NET Framework 4.8).
+2. Build the solution once (Ctrl+Shift+B) to restore all references.
 
-### Step 4 — Update Connection String
-Edit `App.config`:
+### Step 3 — Check the Connection String
+The connection string in **`CODE/EduVault/App.config`** is already configured for SQL Server Express:
 ```xml
 <add name="EduVaultDB"
-     connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=EduVaultDB;Integrated Security=True;"
+     connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=EduVaultDB;Integrated Security=True"
      providerName="System.Data.SqlClient" />
 ```
-Change `.\SQLEXPRESS` to match your SQL Server instance name.
+> ⚠️ **If your SQL Server instance has a different name** (e.g. `localhost`, `(local)`, or a named instance), update `Data Source=` to match the server name shown in your SSMS login dialog.
 
-### Step 5 — Set Startup Form
-- Go to **My Project → Application tab**
-- Set **Startup form** to `frmLogin`
+### Step 4 — Run the Application
+- Press **F5** in Visual Studio to build and launch.
+- The startup form is `frmLogin`.
 
-### Default Credentials
+### Default Login Credentials
 | Username | Password | Role |
 |---|---|---|
 | `admin` | `Admin@123` | Admin — full access |
@@ -118,24 +118,21 @@ Change `.\SQLEXPRESS` to match your SQL Server instance name.
 
 ## 🗄️ Database Schema
 
-| Table / View | Purpose |
+### Tables
+| Table | Purpose |
 |---|---|
-| `tblUsers` | Users (roles, lockout, password reset, dark mode preference) |
-| `tblCategories` | Resource categories |
-| `tblResources` | Resources (views, downloads, thumbnails, versioning) |
-| `tblAccessLog` | View / bookmark / download events for reports |
-| `tblBookmarks` | Student bookmarks |
-| `tblRatings` | 1–5 star ratings and text reviews per resource |
-| `tblNotifications` | System alerts and broadcasts to users |
-| `tblResourceRequests` | Student requests for new materials |
-| `tblFavourites` | Named curated resource lists |
-| `tblResourceVersions` | Audit trail for resource edits |
-| `tblBackupSchedule` | Automated backup configuration |
-| `tblLog` | Application error log (admin System Logs screen) |
-| `vwResourceSummary` | Resource list JOIN view |
-| `vwMonthlyAccessSummary` | Monthly report aggregation |
-| `vwResourceRatings` | Average stars and total ratings per resource |
-| `vwTopActiveUsers` | Top 10 most active users (last 30 days) |
+| `tblUsers` | Student and admin accounts (SHA-256 hashed passwords, roles) |
+| `tblCategories` | Resource categories (Mathematics, Programming, etc.) |
+| `tblResources` | Educational resources (title, URL, type, education level, tags) |
+| `tblAccessLog` | View / bookmark / download events — feeds the monthly report |
+| `tblBookmarks` | Per-user saved resource bookmarks |
+| `tblLog` | Application error and event log (visible in admin System Logs) |
+
+### Views
+| View | Purpose |
+|---|---|
+| `vwResourceSummary` | Resources joined with category and uploader name |
+| `vwMonthlyAccessSummary` | Monthly access counts grouped by resource and category |
 
 ---
 
