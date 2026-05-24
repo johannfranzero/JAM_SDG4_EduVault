@@ -44,7 +44,7 @@ Presentation Layer    →  Windows Forms (.vb / .Designer.vb) — 18 forms + hel
 Business Logic Layer  →  Service classes (AuthService, ResourceService, ReportService, CategoryService, UserService)
 Data Access Layer     →  Repository classes using ADO.NET SqlClient (parameterized queries only)
 Model Layer           →  POCO classes (User, Resource, Category, AccessLog, Bookmark, Session)
-Database Layer        →  Microsoft SQL Server (12 related tables + 4 views + 6 indexes)
+Database Layer        →  SQL Server LocalDB (6 tables + 2 views + 5 indexes)
 ```
 
 ---
@@ -65,7 +65,7 @@ JAM_SDG4_EduVault/                 ← GitHub repository root
 │
 ├── DOCUMENTATION/
 │   ├── SDAD_JAM.pdf               ← Software Design & Analysis Document
-│   ├── ERD_Diagram.png            ← Entity-Relationship Diagram (12 tables)
+│   ├── ERD_Diagram.png            ← Entity-Relationship Diagram (6 tables)
 │   ├── NTier_Architecture.png     ← N-Tier Architecture Diagram
 │   ├── DFD_Level0_Context.png     ← Data Flow Diagram — Level 0
 │   └── DFD_Level1_Process.png     ← Data Flow Diagram — Level 1
@@ -80,8 +80,8 @@ JAM_SDG4_EduVault/                 ← GitHub repository root
 
 ### Prerequisites
 - Visual Studio 2019 or later (.NET Framework 4.8)
-- Microsoft SQL Server / SQL Server Express
-- SQL Server Management Studio (SSMS)
+- **SQL Server LocalDB** — already included with Visual Studio, no separate install needed
+- SQL Server Management Studio (SSMS) — [free download](https://aka.ms/ssmsfullsetup)
 
 ### Step 1 — Database Setup
 1. Open **SQL Server Management Studio (SSMS)**.
